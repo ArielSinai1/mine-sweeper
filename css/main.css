@@ -1,0 +1,15 @@
+.board {
+    margin: auto;
+}
+
+.cell {
+    border: black, solid, 1px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    cursor: pointer;
+    background-color: rgb(108, 108, 95);
+}
+h1 {
+    text-align: center;
+}

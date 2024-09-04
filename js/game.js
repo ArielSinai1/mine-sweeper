@@ -14,9 +14,12 @@ var gLevel = {
 
 var gBoard
 var gBoardSize = gLevel.SIZE
+var gRows = []
+var gCols = []
 
 const MINE = '💣'
-const EMPTY = '4'
+const EMPTY = ' '
+
 
 // 1. Create a 4x4 gBoard Matrix containing Objects. 
 // 2. Set 2 of them to be mines
@@ -25,16 +28,21 @@ const EMPTY = '4'
 function onInit() {
 
     console.log('hello')
-
+    buildRowsAndColsArr()
     gBoard = buildBoard()
     setMinesNegsCount(gBoard)
     renderBoard(gBoard)
     gGame.isOn = true
+
 }
 
 function buildBoard() {
 
     const board = []
+    const randomRow1 = drawNum(gRows)
+    const randomRow2 = drawNum(gRows)
+    const randomCol1 = drawNum(gCols)
+    const randomCols2 = drawNum(gCols)
 
     for (var i = 0; i < gBoardSize; i++) {
         board.push([])
@@ -46,7 +54,7 @@ function buildBoard() {
                 isMine: false,
                 isMarked: false
             }
-            if ((i === 2 && j === 1) || (i === 0 && j === 0)) {
+            if ((i === randomRow1 && j === randomCol1) || (i === randomRow2 && j === randomCols2)) {
                 board[i][j].isMine = true
             }
         }
@@ -67,11 +75,11 @@ function renderBoard(board) {
 
             strHTML += `<td class="${className1} ${className2}" ${strData} onclick="onCellClicked(this, ${i}, ${j})">`
 
-            if (currCell.isMine) {
-                strHTML += MINE
-            } else {
-                strHTML += +board[i][j].minesAroundCount
-            }
+            // if (currCell.isMine) {
+            //     strHTML += MINE
+            // } else {
+            //     strHTML += +board[i][j].minesAroundCount
+            // }
 
             strHTML += '</td>'
         }
@@ -89,9 +97,10 @@ function renderBoard(board) {
 
 function setMinesNegsCount(board) {
 
-    for (var i = 0; i <= board.length; i++) {
-        for (var j = 0; j <= board.length; j++) {
-            var minesAroundCount = 0
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board.length; j++) {
+            var currCell = board[i][j]
+            var minesAroundCounter = 0
             const rowIdx = i
             const colIdx = j
 
@@ -101,18 +110,44 @@ function setMinesNegsCount(board) {
                     if (n === rowIdx && m === colIdx) continue
                     if (m < 0 || m >= board[0].length) continue
                     var currCell = board[n][m]
-                    if (currCell === MINE) minesAroundCount++
+                    if (currCell.isMine) minesAroundCounter++
                 }
             }
             // save counter
+            board[i][j].minesAroundCount = minesAroundCounter
         }
     }
 }
 
+// 1. When clicking a cell, call the onCellClicked() function.
+// 2. Clicking a safe cell reveals the minesAroundCount of this cell
 
 
 
 
 function onCellClicked(elCell, rowIdx, colIdx) {
     console.log('clicked')
+    if(gBoard[rowIdx][colIdx].isMine) {
+        return
+    } else {
+        elCell.innerText = gBoard[rowIdx][colIdx].minesAroundCount
+        elCell.style.backgroundColor = 'white'
+    }
+    // console.log(elCell.classList)
+    // console.log(gBoard[rowIdx][colIdx].isMine)
+    console.log('rows array:' , gRows)
+    console.log('cols array:' , gCols)
+}
+
+// 1. Add some randomicity for mines location
+// 2. After you have this functionality working– its best to comment 
+// the code and switch back to static location to help you focus 
+// during the development phase
+
+function buildRowsAndColsArr() {
+    var size = gLevel.SIZE  
+    for(var i = 0; i < size; i++) {
+        gRows.push(i)
+        gCols.push(i)
+    }
 }

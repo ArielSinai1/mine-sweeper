@@ -1,6 +1,6 @@
 'use strict'
 
-function drawNum() {
+function drawNum(gNums) {
     var numIdx = getRandomInt(0, gNums.length)
     var num = gNums[numIdx]
     gNums.splice(numIdx, 1)
