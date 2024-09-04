@@ -77,13 +77,13 @@ function renderBoard(board) {
             var strData = `data-i="${i}" data-j="${j}"`
 
             strHTML += `<td class="${className1} ${className2}" ${strData} onclick="onCellClicked(this, ${i}, ${j})">`
-            if (gIsFirstClick && (!currCell.isShown)) {
+            if (gIsFirstClick) {
                 if (currCell.isMine) {
                     strHTML += MINE
                 } else {
                     strHTML += +board[i][j].minesAroundCount
                 }
-            }
+            } 
 
             strHTML += '</td>'
         }
@@ -133,13 +133,11 @@ function onCellClicked(elCell, rowIdx, colIdx) {
 
     console.log('clicked')
     if (!gIsFirstClick) {
-        
-        gBoard[rowIdx][colIdx].isShown = true
-        elCell.innerText = ' '
-        elCell.style.backgroundColor = 'white'
         gFirstCellClicked = { row: rowIdx, col: colIdx }
         placeMines(gBoard)
         setMinesNegsCount(gBoard)
+        elCell.innerText = gBoard[rowIdx][colIdx].minesAroundCount 
+        elCell.style.backgroundColor = 'white'
         renderBoard(gBoard)
         gIsFirstClick = true
         console.log('first click')
