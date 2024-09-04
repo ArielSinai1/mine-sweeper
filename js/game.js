@@ -8,7 +8,7 @@ var gGame = {
 }
 
 var gLevel = {
-    SIZE: 4,
+    SIZE: 6,
     MINES: 2
 }
 
@@ -16,6 +16,8 @@ var gBoard
 var gBoardSize = gLevel.SIZE
 var gRows = []
 var gCols = []
+var gIsFirstClick
+var gFirstCellClicked
 
 const MINE = '💣'
 const EMPTY = ' '
@@ -32,6 +34,7 @@ function onInit() {
     gBoard = buildBoard()
     setMinesNegsCount(gBoard)
     renderBoard(gBoard)
+    gIsFirstClick = false
     gGame.isOn = true
 
 }
@@ -39,10 +42,10 @@ function onInit() {
 function buildBoard() {
 
     const board = []
-    const randomRow1 = drawNum(gRows)
-    const randomRow2 = drawNum(gRows)
-    const randomCol1 = drawNum(gCols)
-    const randomCols2 = drawNum(gCols)
+    // const randomRow1 = drawNum(gRows)
+    // const randomRow2 = drawNum(gRows)
+    // const randomCol1 = drawNum(gCols)
+    // const randomCols2 = drawNum(gCols)
 
     for (var i = 0; i < gBoardSize; i++) {
         board.push([])
@@ -54,9 +57,9 @@ function buildBoard() {
                 isMine: false,
                 isMarked: false
             }
-            if ((i === randomRow1 && j === randomCol1) || (i === randomRow2 && j === randomCols2)) {
-                board[i][j].isMine = true
-            }
+            // if ((i === 2 && j === 3) || (i === 2 && j === 0)) {
+            //     board[i][j].isMine = true
+            // }
         }
     }
     return board
@@ -74,12 +77,13 @@ function renderBoard(board) {
             var strData = `data-i="${i}" data-j="${j}"`
 
             strHTML += `<td class="${className1} ${className2}" ${strData} onclick="onCellClicked(this, ${i}, ${j})">`
-
-            // if (currCell.isMine) {
-            //     strHTML += MINE
-            // } else {
-            //     strHTML += +board[i][j].minesAroundCount
-            // }
+            if (gIsFirstClick && (!currCell.isShown)) {
+                if (currCell.isMine) {
+                    strHTML += MINE
+                } else {
+                    strHTML += +board[i][j].minesAroundCount
+                }
+            }
 
             strHTML += '</td>'
         }
@@ -126,17 +130,32 @@ function setMinesNegsCount(board) {
 
 
 function onCellClicked(elCell, rowIdx, colIdx) {
+
     console.log('clicked')
-    if(gBoard[rowIdx][colIdx].isMine) {
-        return
-    } else {
-        elCell.innerText = gBoard[rowIdx][colIdx].minesAroundCount
+    if (!gIsFirstClick) {
+        
+        gBoard[rowIdx][colIdx].isShown = true
+        elCell.innerText = ' '
         elCell.style.backgroundColor = 'white'
+        gFirstCellClicked = { row: rowIdx, col: colIdx }
+        placeMines(gBoard)
+        setMinesNegsCount(gBoard)
+        renderBoard(gBoard)
+        gIsFirstClick = true
+        console.log('first click')
+    } else {
+        if (gBoard[rowIdx][colIdx].isMine) {
+            return
+        } else {
+            elCell.innerText = gBoard[rowIdx][colIdx].minesAroundCount
+            elCell.style.backgroundColor = 'white'
+        }
     }
+
     // console.log(elCell.classList)
     // console.log(gBoard[rowIdx][colIdx].isMine)
-    console.log('rows array:' , gRows)
-    console.log('cols array:' , gCols)
+    console.log('rows array:', gRows)
+    console.log('cols array:', gCols)
 }
 
 // 1. Add some randomicity for mines location
@@ -145,9 +164,33 @@ function onCellClicked(elCell, rowIdx, colIdx) {
 // during the development phase
 
 function buildRowsAndColsArr() {
-    var size = gLevel.SIZE  
-    for(var i = 0; i < size; i++) {
+    gRows = []
+    gCols = []
+    var size = gLevel.SIZE
+    for (var i = 0; i < size; i++) {
         gRows.push(i)
         gCols.push(i)
     }
+}
+
+// The first clicked cell is never a mine 
+// HINT: We need to start with an empty matrix (no mines) and 
+// then place the mines and count the neighbors only on first 
+// click.
+
+function placeMines(board) {
+    gRows.splice(+gFirstCellClicked.row, 1)
+    gRows.splice(+gFirstCellClicked.col, 1)
+    const randomRow1 = drawNum(gRows)
+    const randomRow2 = drawNum(gRows)
+    const randomCol1 = drawNum(gCols)
+    const randomCols2 = drawNum(gCols)
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board.length; j++) {
+            if ((i === 2 && j === 3) || (i === 2 && j === 0)) {
+                board[i][j].isMine = true
+            }
+        }
+    }
+    return board
 }
