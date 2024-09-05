@@ -8,7 +8,7 @@ var gGame = {
 }
 
 var gLevel = {
-    SIZE: 6,
+    SIZE: 4,
     MINES: 2
 }
 
@@ -20,6 +20,7 @@ var gIsFirstClick
 var gFirstCellClicked
 
 const MINE = '💣'
+const FLAG = '🚩'
 const EMPTY = ' '
 
 
@@ -76,14 +77,25 @@ function renderBoard(board) {
             var className2 = (currCell.isMine) ? 'mine' : ''
             var strData = `data-i="${i}" data-j="${j}"`
 
-            strHTML += `<td class="${className1} ${className2}" ${strData} onclick="onCellClicked(this, ${i}, ${j})">`
-            if (gIsFirstClick) {
+            strHTML += `<td class="${className1} ${className2}" ${strData} onclick="onCellClicked(this, ${i}, ${j})"
+            oncontextmenu="onCellRightClicked(event, this, ${i}, ${j})">`
+            if (gBoard[i][j].isShown && !gBoard[i][j].isMine) {
+                strHTML += +board[i][j].minesAroundCount
+            }
+            if (gIsFirstClick && gGame.isOn) {
                 if (currCell.isMine) {
                     strHTML += MINE
                 } else {
                     strHTML += +board[i][j].minesAroundCount
                 }
-            } 
+            }
+            if (gIsFirstClick && !gGame.isOn) {
+                if (currCell.isMine) {
+                    strHTML += MINE
+                }
+            }
+
+
 
             strHTML += '</td>'
         }
@@ -130,23 +142,30 @@ function setMinesNegsCount(board) {
 
 
 function onCellClicked(elCell, rowIdx, colIdx) {
-
+    // elCell.style.backgroundColor = 'white'
     console.log('clicked')
+    
+    if(!gGame.isOn) {
+        return
+    }
     if (!gIsFirstClick) {
         gFirstCellClicked = { row: rowIdx, col: colIdx }
         placeMines(gBoard)
         setMinesNegsCount(gBoard)
-        elCell.innerText = gBoard[rowIdx][colIdx].minesAroundCount 
-        elCell.style.backgroundColor = 'white'
+        gBoard[rowIdx][colIdx].isShown = true
         renderBoard(gBoard)
         gIsFirstClick = true
+        // elCell.style.backgroundColor = 'white'
         console.log('first click')
     } else {
         if (gBoard[rowIdx][colIdx].isMine) {
+            gGame.isOn = false
+            revealAllMines()
             return
         } else {
             elCell.innerText = gBoard[rowIdx][colIdx].minesAroundCount
-            elCell.style.backgroundColor = 'white'
+            // elCell.style.backgroundColor = 'white'
+            gBoard[rowIdx][colIdx].isShown = true
         }
     }
 
@@ -185,10 +204,32 @@ function placeMines(board) {
     const randomCols2 = drawNum(gCols)
     for (var i = 0; i < board.length; i++) {
         for (var j = 0; j < board.length; j++) {
-            if ((i === 2 && j === 3) || (i === 2 && j === 0)) {
+            if ((i === randomRow1 && j === randomCol1) || (i === randomRow2 && j === randomCols2)) {
                 board[i][j].isMine = true
             }
         }
     }
     return board
+}
+
+function revealAllMines() {
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            if (gBoard[i][j].isMine) {
+                gBoard[i][j].isShown = true
+            }
+        }
+    }
+    renderBoard(gBoard)
+}
+
+function onCellRightClicked(event, elCell, rowIdx, colIdx) {
+    event.preventDefault() 
+    toggleFlag(elCell, rowIdx, colIdx)
+}
+
+function toggleFlag(elCell, rowIdx, colIdx) {
+    const cell = gBoard[rowIdx][colIdx]
+    cell.isMarked = !cell.isMarked
+    elCell.innerText = cell.isMarked ? FLAG : EMPTY
 }
