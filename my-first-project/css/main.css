@@ -1,16 +1,25 @@
 
 .board {
-    margin: auto;
+  margin: auto; 
+  border: 2px solid #999; 
 }
 
 .cell {
-    border: 1px, solid, black;
     width: 25px;
     height: 25px;
     text-align: center;
     cursor: pointer;
     background-color: rgb(108, 108, 95);
+  border: 1px solid #808080;
+  font-family: Arial, sans-serif;
+  box-shadow: inset 1px 1px #fff, inset -1px -1px #808080;
 }
+
+.cell:active {
+    background-color: #a0a0a0; 
+    border: 2px solid #808080; 
+    box-shadow: none; 
+  }
 
 h1 {
     text-align: center;
@@ -41,4 +50,8 @@ button {
     background-color: rgb(174, 174, 201);
     border: 2px, solid, black;
     /* border-radius: 30%; */
+}
+
+.timer {
+    text-align: center;
 }

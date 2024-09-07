@@ -19,6 +19,8 @@ var gIsFirstClick
 var gFirstCellClicked
 var gMineCounter
 var gLivesCount
+var gTimerInterval = null
+var gStartTime = null
 
 const MINE = '💣'
 const FLAG = '🚩'
@@ -133,11 +135,11 @@ function onCellClicked(elCell, rowIdx, colIdx) {
         if (gBoard[rowIdx][colIdx].minesAroundCount === 0) {
 
             gBoard[rowIdx][colIdx].isShown = true
-            noNegs(rowIdx, colIdx)
+            zeroNegs(rowIdx, colIdx)
         }
         renderBoard(gBoard)
         gIsFirstClick = true
-
+        startTimer()
     } else {
         if (gBoard[rowIdx][colIdx].isMine) {
 
@@ -162,7 +164,7 @@ function onCellClicked(elCell, rowIdx, colIdx) {
 
                 elCell.innerText = 0
                 gBoard[rowIdx][colIdx].isShown = true
-                noNegs(rowIdx, colIdx)
+                zeroNegs(rowIdx, colIdx)
             }
             elCell.innerText = gBoard[rowIdx][colIdx].minesAroundCount
 
@@ -198,6 +200,7 @@ function revealAllMines() {
         }
     }
     renderBoard(gBoard)
+    stopTimer()
 }
 
 function onCellRightClicked(event, elCell, rowIdx, colIdx) {
@@ -224,7 +227,7 @@ function isVictory() {
     }
     var elSmiley = document.querySelector('.smiley')
     elSmiley.innerText = '🤩'
-
+    stopTimer()
     gGame.isOn = false
 }
 
@@ -236,7 +239,7 @@ function onChangeDifficulty(size, mines) {
     onInit()
 }
 
-function noNegs(rowIdx, colIdx) {
+function zeroNegs(rowIdx, colIdx) {
 
     gBoard[rowIdx][colIdx].isShown = true
 
@@ -254,11 +257,14 @@ function noNegs(rowIdx, colIdx) {
     }
 }
 
+
 function restart() {
     gGame.isOn = false
     var elSmiley = document.querySelector('.smiley')
     elSmiley.innerText = '😁'
     gLivesCount = 3
+    document.querySelector('.timer').innerText = '000'
+    stopTimer()
     onInit()
 }
 
@@ -270,4 +276,22 @@ function resetLifeText() {
         gLivesCount = 3  
     }
     elLives.innerText = `Lives left: ${gLivesCount}`
+}
+
+
+function startTimer() {
+    gStartTime = Date.now();
+    gTimerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+        var now = Date.now();
+        var elapsedTime = Math.floor((now - gStartTime) / 1000)
+        var formattedTime = String(elapsedTime).padStart(3, '0')
+        document.querySelector('.timer').innerText = formattedTime
+}
+
+function stopTimer() {
+    clearInterval(gTimerInterval)
+    gTimerInterval = null;
 }
